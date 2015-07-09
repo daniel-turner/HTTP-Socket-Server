@@ -16,6 +16,7 @@ var HTTP_RESPONSE_CODES = {
 function getHeader(code, contentLength) {
 
   var header = "HTTP/1.1 " + code + " " + HTTP_RESPONSE_CODES[code];
+  header += " Server: daniels_server";
   header += " Date: " + new Date().toUTCString();
   header += " Content-Type: text/html; charset=utf-8";
   header += " Content-Length: " + contentLength;
@@ -54,6 +55,7 @@ function clientConnected(client) { //'connection' listener
 
             break;
 
+          case "/":
           case "/index.html":
 
             body = resources().htmlIndex;
