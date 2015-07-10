@@ -1,6 +1,7 @@
 var net = require('net');
 var resources = require('./resources.js');
 var PORT = 6969;
+var CONTENT_MODIFICATION_DATE = "Sat, 29 Oct 1994 19:43:31 GMT"; //for testing if-modified-since functionality
 var HTTP_RESPONSE_CODES = {
 
   200 : "OK",
@@ -41,69 +42,94 @@ function clientConnected(client) { //'connection' listener
     var body;
     var response;
 
-    switch (messageArray[0]) {
+    var ifModifiedSinceIndex = messageArray.indexOf("If-Modified-Since:");
 
-      case "GET":
+    if(ifModifiedSinceIndex) {
 
-        switch (messageArray[1]) {
+      var ifModifiedSinceTime;
 
-          case "/hydrogen.html":
+      for(var i = 1; i < 7; i++) {
 
-            body = resources().htmlHydrogen;
-            header = getHeader(200, body.length);
-            response = header + "\n\n" + body;
+        ifModifiedSinceTime += messageArray[ifModifiedSinceIndex[ifModifiedSinceIndex + i];
+      }
 
-            break;
+      if(ifModifiedSinceTime) {
 
-          case "/":
-          case "/index.html":
+        if(Date.parse(ifModifiedSinceTime) > Date.parse(CONTENT_MODIFICATION_DATE)) {
 
-            body = resources().htmlIndex;
-            header = getHeader(200, body.length);
-            response = header + "\n\n" + body;
-
-            break;
-
-          case "/css/styles.css":
-
-            body = resources().cssStyles;
-            header = getHeader(200, body.length);
-            response = header + "\n\n" + body;
-
-            break;
-
-          default:
-
-            body = resources().fourOFour;
-            header = getHeader(404, body.length);
-            response = header + "\n\n" + body;
-            break;
+          response = getHeader(304, 0);
         }
-        break;
+      }
+    }
 
-      case "POST":
+    if(!response) {
 
-        break;
+      switch (messageArray[0]) {
 
-      case "PUT":
+        case "GET":
 
-        break;
+          switch (messageArray[1]) {
 
-      case "DELETE":
+            case "/hydrogen.html":
 
-        break;
+              body = resources().htmlHydrogen;
+              header = getHeader(200, body.length);
+              response = header + "\n\n" + body;
 
-      case "HEAD":
+              break;
 
-        break;
+            case "/":
+            case "/index.html":
 
-      case "OPTIONS":
+              body = resources().htmlIndex;
+              header = getHeader(200, body.length);
+              response = header + "\n\n" + body;
 
-        break;
+              break;
 
-      default:
+            case "/css/styles.css":
 
-        break;
+              body = resources().cssStyles;
+              header = getHeader(200, body.length);
+              response = header + "\n\n" + body;
+
+              break;
+
+            default:
+
+              body = resources().fourOFour;
+              header = getHeader(404, body.length);
+              response = header + "\n\n" + body;
+              break;
+          }
+          break;
+
+        case "POST":
+
+          break;
+
+        case "PUT":
+
+          break;
+
+        case "DELETE":
+
+          break;
+
+        case "HEAD":
+
+          response = getHeader(200, 0);
+
+          break;
+
+        case "OPTIONS":
+
+          break;
+
+        default:
+
+          break;
+      }
     }
 
     console.log(response);
