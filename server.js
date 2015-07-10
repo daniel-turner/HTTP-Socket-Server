@@ -50,7 +50,7 @@ function clientConnected(client) { //'connection' listener
 
       for(var i = 1; i < 7; i++) {
 
-        ifModifiedSinceTime += messageArray[ifModifiedSinceIndex[ifModifiedSinceIndex + i];
+        ifModifiedSinceTime += messageArray[ifModifiedSinceIndex + i];
       }
 
       if(ifModifiedSinceTime) {
